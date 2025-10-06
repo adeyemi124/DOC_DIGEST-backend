@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const cors = require('cors');
+const compression = require('compression');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
@@ -13,10 +14,12 @@ const analysisRoutes = require('./routes/analysisRoutes');
 const app = express();
 
 // Middleware
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+const allowedOrigin = process.env.FRONTEND_ORIGIN || '*';
+app.use(cors({ origin: allowedOrigin, credentials: true }));
+app.use(compression());
 app.use(helmet()); // Set security-related HTTP headers
-app.use(morgan('dev')); // HTTP request logger
-app.use(express.json()); // To parse JSON bodies
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(express.json({ limit: '1mb' }));
 
 // Define Routes
 app.use('/api/analysis', analysisRoutes);

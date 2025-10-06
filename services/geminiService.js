@@ -102,11 +102,16 @@ const analyzeContent = async ({ input, inputType, mode }) => {
 
 		const jsonResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-		const cleanedJson = (jsonResponse || '')
-			.replace(/```json\n|```/g, '')
-			.trim();
+        const cleanedJson = (jsonResponse || '')
+            .replace(/```json\n|```/g, '')
+            .trim();
 
-		const parsedResult = JSON.parse(cleanedJson);
+        let parsedResult;
+        try {
+            parsedResult = JSON.parse(cleanedJson);
+        } catch (e) {
+            throw new Error('The AI returned an unexpected format. Please try again.');
+        }
 
 		return {
 			id: `gemini-${Date.now()}`,
